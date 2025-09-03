@@ -1,0 +1,81 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Event {
+  id            String         @id @default(uuid())
+  addressId     String
+  address       Address        @relation(fields: [addressId], references: [id])
+  title         String?
+  description   String?
+  backgroundImg String?
+  ticketUrl     String?
+  schedule      EventSchedule? @relation("EventScheduleRelation")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Photo     Photo[]
+
+  @@map("event")
+}
+
+model Photo {
+  id      String    @id @default(uuid())
+  url     String
+  eventId String
+  event   Event     @relation(fields: [eventId], references: [id])
+  type    PhotoType
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("photo")
+}
+
+model Address {
+  id           String  @id @default(uuid())
+  street       String?
+  city         String?
+  neighborhood String?
+  number       Int
+  CEP          String
+  Event        Event[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("address")
+}
+
+model EventSchedule {
+  id      String @id @default(uuid())
+  eventId String @unique
+  event   Event  @relation("EventScheduleRelation", fields: [eventId], references: [id])
+
+  date            DateTime // data do evento
+  startTime       String // horário de início (ex: "20:00")
+  endTime         String // horário de término (ex: "02:00")
+  happyHour       String? // horário que bebidas são grátis ou desconto (ex: "22:00")
+  eventHighlights String[] // informação de preço chamativa (ex: "Até 23h 15 reais, depois 30")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("event_schedule")
+}
+
+enum PhotoType {
+  GALLERY
+  BANNER
+}
