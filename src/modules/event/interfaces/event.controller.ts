@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put } from '@nestjs/common';
 import { EventService } from '../service/event.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { CreateEventScheduleDto } from './dto/create-schedule.dto';
@@ -14,11 +14,17 @@ export class EventController {
     });
   }
 
- @Post('schedule')
+  @Post('schedule')
   createSchedule(@Body() schedule: CreateEventScheduleDto) {
-    return this.service.createSchedule({
-      ...schedule
-    });
+      return this.service.createSchedule({
+        ...schedule
+      });
   }
+
+  @Get()
+  getAllEvents(){
+    return this.service.getAllEvents();
+  }
+
   
 }

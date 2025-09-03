@@ -2,10 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { CreateEventDto } from '../interfaces/dto/create-event.dto';
 import { PrismaService } from '@/prisma/prisma.service';
 import { CreateEventScheduleDto } from '../interfaces/dto/create-schedule.dto';
+import { GenericService } from '@/shared/services/generic.service';
 
 @Injectable()
 export class EventService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private readonly genericService: GenericService) {}
 
   async createEvent(eventDto: CreateEventDto) {
    const { schedule, ...event } = eventDto;
@@ -23,13 +24,15 @@ export class EventService {
               eventHighlights: schedule.eventHighlights,
             },
           }
-        : undefined, // caso não tenha schedule
+        : undefined, 
     },
     include: { address: true, schedule: true },
   });
   }
 
   async createSchedule(schedule: CreateEventScheduleDto){
+    await this.genericService.findRecordById('event', schedule.eventId);
+   
     return this.prisma.eventSchedule.create({
       data: {
         ...schedule,
@@ -39,16 +42,26 @@ export class EventService {
     })
   }
 
-  // async findAll() {
-  //   return this.prisma.event.findMany({
-  //     include: { Photo: true, address: true },
-  //   });
-  // }
-
-  // async findOne(id: string) {
-  //   return this.prisma.event.findUnique({
-  //     where: { id },
-  //     include: { Photo: true, address: true },
-  //   });
-  // }
+  async getAllEvents(){
+    return this.prisma.event.findMany({
+      include: {
+        schedule: {
+          select: {
+            date: true,
+            startTime: true,
+            endTime: true,
+            eventHighlights: true
+          }
+        },
+        address: {
+          select: {
+             street: true,
+             city: true,
+             neighborhood: true,
+             number: true
+          }
+        }
+      }
+    });
+  }
 }
