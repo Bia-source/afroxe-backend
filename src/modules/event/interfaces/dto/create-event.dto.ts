@@ -1,6 +1,6 @@
 // create-event.dto.ts
 import { Type } from 'class-transformer';
-import { IsString, IsOptional, IsDateString, IsUUID, ValidateNested } from 'class-validator';
+import { IsString, IsOptional, IsUUID, ValidateNested } from 'class-validator';
 import { CreateEventScheduleDto } from './create-schedule.dto';
 
 export class CreateEventDto {
